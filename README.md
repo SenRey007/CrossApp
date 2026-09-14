@@ -1,4 +1,4 @@
-\# CrossApp
+# CrossApp
 
 Наскрізний проєкт з крос-платформного програмування.
 
@@ -8,6 +8,7 @@
 
 Структура solution
 
+```
 CrossApp/
 ├── CrossApp.sln
 ├── README.md
@@ -19,7 +20,7 @@ CrossApp/
     └── Cli/
         ├── Cli.csproj
         └── Program.cs
-
+```
 ## Команди
  
 Build:
@@ -32,13 +33,14 @@ dotnet run --project src/Cli
 Publish:
 
 dotnet publish src/Cli -c Release -r win-x64 --self-contained true
+
 dotnet publish src/Cli -c Release -r win-x64 --self-contained false
 
 
 | RID | Режим | Розмір publish | Потрібен runtime |
-|---------|----------------|----------|-----------------------|
-| win-x64 | self-contained | 70.67 МБ |         ні            |
-| win-x64 | self-contained | 0.17 МБ  |    так (.NET 8)       |
+|---------|---------------------|----------|-----------------------|
+| win-x64 |    self-contained   | 70.67 МБ |         ні            |
+| win-x64 | framework-dependent | 0.17 МБ  |    так (.NET 8)       |
 
 \## Середовище
 
