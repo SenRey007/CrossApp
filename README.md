@@ -20,11 +20,14 @@ CrossApp/
         ├── Cli.csproj
         └── Program.cs
 
-\## Запуск
-
+## Команди
+ 
+Build:
 dotnet build
-
+ 
+Run:
 dotnet run --project src/Cli
+
 
 Publish:
 
@@ -33,13 +36,13 @@ dotnet publish src/Cli -c Release -r win-x64 --self-contained false
 
 
 | RID | Режим | Розмір publish | Потрібен runtime |
-|---------|----------------|---------|-----------------------|
-| win-x64 | self-contained | 77 МБ   |         ні            |
-| win-x64 | self-contained | 0.2 МБ  |    так (.NET 8,10)    |
+|---------|----------------|----------|-----------------------|
+| win-x64 | self-contained | 70.67 МБ |         ні            |
+| win-x64 | self-contained | 0.17 МБ  |    так (.NET 8)       |
 
 \## Середовище
 
-.NET SDK 8.0, Windows x64	
+.NET SDK 9.0.100, runtime .NET 8.0.11, Windows x64
 
 
 
