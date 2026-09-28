@@ -46,7 +46,7 @@ public static class DomainDemo
             () => BookCopy.FromDto(new BookCopyDto("C-009", "", false)));
     }
 
-    private static void TryDo(string title, Action action)
+    internal static void TryDo(string title, Action action)
     {
         try
         {

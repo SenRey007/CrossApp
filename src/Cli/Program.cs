@@ -2,13 +2,19 @@
 using Core.Dto;
 using Core.Import;
 
-// Використання: Cli [шлях] [--mixed] [--domain]
+// Використання: Cli [шлях] [--mixed] [--domain] [--extra]
 //   .csv  -> BookCsvImporter, .json -> BookJsonImporter
 //   --mixed  -> файл із префіксами типів (B;... книги, R;... читачі)
 //   --domain -> демонстрація доменної моделі (лаба 4)
 if (args.Contains("--domain"))
 {
     DomainDemo.Run();
+    return 0;
+}
+
+if (args.Contains("--extra"))
+{
+    ExtraDemo.Run();
     return 0;
 }
 

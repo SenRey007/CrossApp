@@ -36,6 +36,16 @@ CrossApp/
 - Не можна закрити вже закриту видачу (InvalidOperationException) — Close
 - FromDto проходить ті самі перевірки, що й Open
 
+## Додаткове завдання (lab04)
+
+**Book** (сутність з імпорту): id, ISBN, назва не порожні; ISBN має 10 або 13 цифр; рік 1450..поточний.
+`BookEntityMapper` повертає `ImportResult<Book>` із помилками імпорту й доменних перевірок.
+
+**LendingService**: читач не може мати більше 5 відкритих видач (InvalidOperationException).
+
+**Loan: стани** Open → Returned, Open → Lost, Lost → Returned; решта переходів заборонена
+(InvalidOperationException). FromDto перевіряє узгодженість стану, дати повернення й примірника.
+
 
 ## Команди
  
