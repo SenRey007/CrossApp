@@ -1,9 +1,17 @@
-﻿using Core.Dto;
+﻿using Cli;
+using Core.Dto;
 using Core.Import;
 
-// Використання: Cli [шлях] [--mixed]
+// Використання: Cli [шлях] [--mixed] [--domain]
 //   .csv  -> BookCsvImporter, .json -> BookJsonImporter
-//   --mixed -> файл із префіксами типів (B;... книги, R;... читачі)
+//   --mixed  -> файл із префіксами типів (B;... книги, R;... читачі)
+//   --domain -> демонстрація доменної моделі (лаба 4)
+if (args.Contains("--domain"))
+{
+    DomainDemo.Run();
+    return 0;
+}
+
 bool mixed = args.Contains("--mixed");
 string path = args.FirstOrDefault(a => !a.StartsWith("--")) ?? Path.Combine("data", "sample.csv");
 

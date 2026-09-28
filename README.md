@@ -21,6 +21,22 @@ CrossApp/
         ├── Cli.csproj
         └── Program.cs
 ```
+
+## Інваріанти доменної моделі (lab04)
+
+**BookCopy**
+- Id примірника не порожній (ArgumentException) — Create
+- ISBN не порожній (ArgumentException) — Create
+- Не можна видати вже виданий примірник (InvalidOperationException) — Issue
+- Не можна повернути невиданий примірник (InvalidOperationException) — Return
+
+**Loan**
+- Id видачі та читача не порожні (ArgumentException) — Open, FromDto
+- Дата повернення не раніше дати видачі (ArgumentOutOfRangeException) — Close, FromDto
+- Не можна закрити вже закриту видачу (InvalidOperationException) — Close
+- FromDto проходить ті самі перевірки, що й Open
+
+
 ## Команди
  
 Build:
