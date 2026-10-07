@@ -9,4 +9,6 @@ public interface IBookCopyStore
     void Add(BookCopy item);
     void Update(BookCopy item);
     bool Remove(string id);
+    IReadOnlyList<BookCopy> Find(Func<BookCopy, bool> predicate) =>
+    	List().Where(predicate).ToList();
 }

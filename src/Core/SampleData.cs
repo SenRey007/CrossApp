@@ -2,7 +2,7 @@ using Core.Abstractions;
 using Core.Domain;
 using Core.Services;
 using Core.Storage;
-namespace Cli;
+namespace Core;
 
 public static class SampleData
 {
