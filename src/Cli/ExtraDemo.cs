@@ -2,6 +2,7 @@ using Core.Domain;
 using Core.Dto;
 using Core.Import;
 using Core.Services;
+using Core.Storage;
 
 namespace Cli;
 
@@ -38,29 +39,32 @@ public static class ExtraDemo
     }
 
     private static void PartLimit()
+{
+    Console.WriteLine("=== Додаткове 2: ліміт відкритих видач на читача ===");
+    var store = new InMemoryBookCopyStore();
+    var service = new LendingService(store);
+    var day = new DateOnly(2026, 9, 1);
+
+    var copies = new List<BookCopy>();
+    for (int i = 1; i <= LendingService.MaxOpenLoansPerReader; i++)
     {
-        Console.WriteLine("=== Додаткове 2: ліміт відкритих видач на читача ===");
-        var service = new LendingService();
-        var day = new DateOnly(2026, 9, 1);
-
-        for (int i = 1; i <= LendingService.MaxOpenLoansPerReader; i++)
-        {
-            BookCopy c = BookCopy.Create($"C-{100 + i}", "978-966-03-1234-5");
-            service.Issue($"L-{100 + i}", c, "R-010", day);
-        }
-        Console.WriteLine($" Відкритих видач у R-010: {service.CountOpenLoans("R-010")}");
-
-        BookCopy extra = BookCopy.Create("C-106", "978-966-03-1234-5");
-        DomainDemo.TryDo("6-та видача одному читачу",
-            () => service.Issue("L-106", extra, "R-010", day));
-        Console.WriteLine($" Примірник після відмови: {extra}");
-
-        service.Return("L-101", day.AddDays(14));
-        Console.WriteLine($" Після повернення L-101 відкритих: {service.CountOpenLoans("R-010")}");
-
-        service.Issue("L-106", extra, "R-010", day.AddDays(15));
-        Console.WriteLine($" 6-та видача після повернення: {extra}, відкритих: {service.CountOpenLoans("R-010")}");
+        BookCopy c = service.AddBook("978-966-03-1234-5");
+        copies.Add(c);
+        service.IssueCopy($"L-{100 + i}", c.Id, "R-010", day);
     }
+    Console.WriteLine($" Відкритих видач у R-010: {service.CountOpenLoans("R-010")}");
+
+    BookCopy extra = service.AddBook("978-966-03-1234-5");
+    DomainDemo.TryDo("6-та видача одному читачу",
+        () => service.IssueCopy("L-106", extra.Id, "R-010", day));
+    Console.WriteLine($" Примірник після відмови: {extra}");
+
+    service.ReturnCopy("L-101", day.AddDays(14));
+    Console.WriteLine($" Після повернення L-101 відкритих: {service.CountOpenLoans("R-010")}");
+
+    service.IssueCopy("L-106", extra.Id, "R-010", day.AddDays(15));
+    Console.WriteLine($" 6-та видача після повернення: {extra}, відкритих: {service.CountOpenLoans("R-010")}");
+}
 
     private static void PartStates()
     {

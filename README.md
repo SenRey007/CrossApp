@@ -46,6 +46,12 @@ CrossApp/
 **Loan: стани** Open → Returned, Open → Lost, Lost → Returned; решта переходів заборонена
 (InvalidOperationException). FromDto перевіряє узгодженість стану, дати повернення й примірника.
 
+## Сервісний шар (lab05)
+
+IBookCopyStore — контракт: List, GetById, Add, Update, Remove.
+Реалізації: InMemoryBookCopyStore (у пам'яті), FileBookCopyStore (JSON-файл, кеш + Flush після зміни).
+LendingService(IBookCopyStore) — AddBook, IssueCopy, ReturnCopy, All, Find; залежить лише від інтерфейсу.
+Composition root — LendingDemo.Run у Cli: вибір реалізації прапорцем --file.
 
 ## Команди
  
