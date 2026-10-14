@@ -1,19 +1,29 @@
 using Core.Abstractions;
 using Core.Domain;
+using Core.Events;
 
 namespace Core.Services;
 
 public sealed class LendingService(IBookCopyStore store)
 {
     public const int MaxOpenLoansPerReader = 5;
+    public const int LoanPeriodDays = 14;
 
     private readonly IBookCopyStore _store = store ?? throw new ArgumentNullException(nameof(store));
     private readonly List<Loan> _loans = [];
 
+    public event EventHandler<LendingChangedEventArgs>? Changed;
+
+    // Єдине місце, де піднімається подія.
+    private void OnChanged(string copyId, LendingChangeKind kind,
+        string? readerId = null, DateOnly? dueDate = null) =>
+        Changed?.Invoke(this, new LendingChangedEventArgs(copyId, kind, readerId, dueDate));
+
     public BookCopy AddBook(string isbn)
     {
         BookCopy copy = BookCopy.Create(Guid.NewGuid().ToString("N")[..8], isbn);
-        _store.Add(copy); // інваріанти вже перевірив BookCopy.Create
+        _store.Add(copy);
+        OnChanged(copy.Id, LendingChangeKind.BookAdded); // після зміни, не до
         return copy;
     }
 
@@ -35,8 +45,10 @@ public sealed class LendingService(IBookCopyStore store)
                 $"Читач {reader} уже має {open} відкритих видач (максимум {MaxOpenLoansPerReader})");
 
         Loan loan = Loan.Open(loanId, copy, reader, issuedOn); // copy.Issue() всередині
-        _store.Update(copy);                                   // зберегти новий стан примірника
+        _store.Update(copy);
         _loans.Add(loan);
+
+        OnChanged(copy.Id, LendingChangeKind.CopyIssued, reader, issuedOn.AddDays(LoanPeriodDays));
         return loan;
     }
 
@@ -48,9 +60,15 @@ public sealed class LendingService(IBookCopyStore store)
         loan.Close(returnedOn); // copy.Return() всередині
 
         BookCopy copy = _store.GetById(loan.CopyId)!;
-        _store.Update(copy); // примусовий Flush для файлового сховища
+        _store.Update(copy);
+
+        OnChanged(copy.Id, LendingChangeKind.CopyReturned, loan.ReaderId);
     }
 
     public IReadOnlyList<BookCopy> All() => _store.List();
     public BookCopy? Find(string copyId) => _store.GetById(copyId);
+
+    // Критерій задає той, хто викликає: тут потрібне значення назад, тому Func, а не подія.
+    public IReadOnlyList<BookCopy> FindAll(Func<BookCopy, bool> predicate) =>
+        _store.Find(predicate);
 }
