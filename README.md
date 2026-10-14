@@ -66,7 +66,11 @@ LendingService.Changed — event EventHandler<LendingChangedEventArgs>: BookAdde
 Core не пише в консоль і лог: підписники живуть у Cli (локальний метод + лямбда-лічильник), лог — logs/app.log.
 FindAll(Func<BookCopy,bool>) — пошук з критерієм від викликача.
 
+## Додаткове завдання (lab06)
 
+INotificationSink (Core) + ConsoleSink/FileSink (Cli): sink передається LendingService через конструктор, CompositeSink розсилає на кілька.
+BookCsvImporter.Load(path, Action<string> onSkipped): звіт про пропущений рядок у момент пропуску.
+Порівняння event і sink, а також пояснення про async void — у звіті.
 
 ## Команди
  

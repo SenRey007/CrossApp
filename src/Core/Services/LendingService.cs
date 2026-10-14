@@ -4,7 +4,7 @@ using Core.Events;
 
 namespace Core.Services;
 
-public sealed class LendingService(IBookCopyStore store)
+public sealed class LendingService(IBookCopyStore store, INotificationSink? sink = null)
 {
     public const int MaxOpenLoansPerReader = 5;
     public const int LoanPeriodDays = 14;
@@ -14,10 +14,13 @@ public sealed class LendingService(IBookCopyStore store)
 
     public event EventHandler<LendingChangedEventArgs>? Changed;
 
-    // Єдине місце, де піднімається подія.
     private void OnChanged(string copyId, LendingChangeKind kind,
-        string? readerId = null, DateOnly? dueDate = null) =>
-        Changed?.Invoke(this, new LendingChangedEventArgs(copyId, kind, readerId, dueDate));
+    string? readerId = null, DateOnly? dueDate = null)
+	{
+    		var args = new LendingChangedEventArgs(copyId, kind, readerId, dueDate);
+    		Changed?.Invoke(this, args);
+    		_sink?.Notify(args);
+	}
 
     public BookCopy AddBook(string isbn)
     {
@@ -71,4 +74,6 @@ public sealed class LendingService(IBookCopyStore store)
     // Критерій задає той, хто викликає: тут потрібне значення назад, тому Func, а не подія.
     public IReadOnlyList<BookCopy> FindAll(Func<BookCopy, bool> predicate) =>
         _store.Find(predicate);
+
+    private readonly INotificationSink? _sink = sink;
 }

@@ -7,7 +7,15 @@ public static class BookCsvImporter
     // Роздільник — крапка з комою
     private const char Separator = ';';
 
-    public static ImportResult<BookDto> Load(string path)
+public static ImportResult<BookDto> Load(string path) => LoadCore(path, null);
+
+public static ImportResult<BookDto> Load(string path, Action<string> onSkipped)
+{
+    ArgumentNullException.ThrowIfNull(onSkipped);
+    return LoadCore(path, onSkipped);
+}
+
+    private static ImportResult<BookDto> LoadCore(string path, Action<string>? onSkipped)
     {
         var items = new List<BookDto>();
         var errors = new List<string>();
@@ -31,8 +39,12 @@ public static class BookCsvImporter
                     items.Add(ok.Value);
                     break;
                 case ParseFailed failed:
-                    errors.Add($"рядок {number}: {failed.Reason}");
-                    break;
+			{
+    				string message = $"рядок {number}: {failed.Reason}";
+    				errors.Add(message);
+    				onSkipped?.Invoke(message);
+    				break;
+			}
             }
         }
 

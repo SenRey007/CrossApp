@@ -2,7 +2,7 @@
 using Core.Dto;
 using Core.Import;
 
-// Використання: Cli [шлях] [--mixed] [--domain] [--extra] [--lending [--file]] [--storage-extra] [--events]
+// Використання: Cli [шлях] [--mixed] [--domain] [--extra] [--lending [--file]] [--storage-extra] [--events [--file] ]
 //   .csv  -> BookCsvImporter, .json -> BookJsonImporter
 //   --mixed  -> файл із префіксами типів (B;... книги, R;... читачі)
 //   --domain -> демонстрація доменної моделі (лаба 4)
@@ -15,6 +15,12 @@ if (args.Contains("--domain"))
 if (args.Contains("--extra"))
 {
     ExtraDemo.Run();
+    return 0;
+}
+
+if (args.Contains("--events-extra"))
+{
+    EventsExtraDemo.Run();
     return 0;
 }
 
