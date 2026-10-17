@@ -7,3 +7,7 @@ public sealed record OverdueLine(string LoanId, string CopyId, string ReaderId, 
 public sealed record GroupSummary(string Key, int Count);
 
 public sealed record CopyStats(int Titles, int Copies, int IssuedCopies, double AverageCopiesPerTitle, int MaxCopiesPerTitle);
+
+public sealed record BookAvailabilityLine(string Isbn, string Title, int Copies, int Free);
+
+public sealed record TitleLoanCount(string Isbn, string Title, int Loans);

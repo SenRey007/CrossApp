@@ -43,6 +43,30 @@ public static class ReportsDemo
                 break;
             }
 
+            case "report-join":
+                foreach (BookAvailabilityLine l in ReportService.BookAvailability(books, store.List()))
+                    Console.WriteLine($" {l.Title,-34} примірників: {l.Copies,2}  вільних: {l.Free,2}");
+                break;
+
+            case "report-popular":
+                foreach (TitleLoanCount t in ReportService.PopularTitles(loans, store.List(), books, 5))
+                    Console.WriteLine($" {t.Isbn,-18} {t.Title,-24} видач: {t.Loans,2}");
+                break;
+
+            case "report-compare":
+            {
+                IReadOnlyList<GroupSummary> method = ReportService.BooksByDecade(books);
+                IReadOnlyList<GroupSummary> query = ReportService.BooksByDecadeQuery(books);
+                Console.WriteLine($" груп (методний синтаксис): {method.Count}");
+                Console.WriteLine($" груп (запитний синтаксис): {query.Count}");
+                Console.WriteLine($" результати однакові: {method.SequenceEqual(query)}");
+                break;
+            }
+
+            case "report-bench":
+                ReportBench.Run();
+                break;
+
             case "report-deferred":
                 DeferredDemo();
                 break;
@@ -53,12 +77,15 @@ public static class ReportsDemo
                 Console.WriteLine($" TopReaders: {ReportService.TopReaders([], 5).Count}");
                 Console.WriteLine($" Overdue: {ReportService.Overdue([], SampleData.ReferenceDate, 14).Count}");
                 Console.WriteLine($" BooksByDecade: {ReportService.BooksByDecade([]).Count}");
+                Console.WriteLine($" BookAvailability: {ReportService.BookAvailability([], []).Count}");
+                Console.WriteLine($" PopularTitles: {ReportService.PopularTitles([], [], [], 5).Count}");
                 Console.WriteLine($" CopyTotals: видань {e.Titles}, примірників {e.Copies}, середнє {Fmt(e.AverageCopiesPerTitle)}, максимум {e.MaxCopiesPerTitle}");
                 break;
             }
 
             default:
-                Console.WriteLine("report-top | report-overdue | report-groups | report-sum | report-deferred | report-empty");
+                Console.WriteLine("report-top | report-overdue | report-groups | report-sum | report-join | " +
+                                  "report-popular | report-compare | report-bench | report-deferred | report-empty");
                 return 2;
         }
 
