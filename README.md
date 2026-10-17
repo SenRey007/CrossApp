@@ -72,6 +72,17 @@ INotificationSink (Core) + ConsoleSink/FileSink (Cli): sink передаєтьс
 BookCsvImporter.Load(path, Action<string> onSkipped): звіт про пропущений рядок у момент пропуску.
 Порівняння event і sink, а також пояснення про async void — у звіті.
 
+## Звіти LINQ (lab07)
+
+ReportService (Core/Reports): TopReaders, Overdue, BooksByDecade, CopyTotals; приймають IEnumerable<T>, повертають IReadOnlyList<DTO> або DTO.
+Підкоманди Cli: report-top, report-overdue, report-groups, report-sum, report-deferred, report-empty.
+
+Коли виконується запит: усі методи ReportService закінчуються ToList(), тому запит виконується всередині виклику методу, а в Cli потрапляє готовий список.
+У демо report-deferred запит source.Where(...) лише описано в момент оголошення. Перший Count() обробляє джерело й дає 8, потім у джерело додано примірник, і другий Count() виконує запит заново та дає 9.
+Знімок ToList() зафіксував 9 і не змінюється після source.Clear(), тоді як сам запит після очищення бачить 0.
+
+
+
 ## Команди
  
 Build:
