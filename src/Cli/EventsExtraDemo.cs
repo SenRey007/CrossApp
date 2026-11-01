@@ -25,7 +25,7 @@ public static class EventsExtraDemo
         File.WriteAllText(logPath, string.Empty);
 
         var sink = new CompositeSink(new ConsoleSink(), new FileSink(logPath));
-        var service = new LendingService(new InMemoryBookCopyStore(), sink);
+        var service = new LendingService(new InMemoryBookCopyStore(), sink);    
 
         int viaEvent = 0;
         service.Changed += (_, _) => viaEvent++;

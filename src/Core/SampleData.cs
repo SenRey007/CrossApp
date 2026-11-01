@@ -8,7 +8,7 @@ public static class SampleData
     // У бойовому коді було б DateOnly.FromDateTime(DateTime.Today).
     public static readonly DateOnly ReferenceDate = new(2026, 10, 15);
 
-    // З лаб. 5–6: НЕ змінювати.
+    
     public static IEnumerable<BookCopy> Copies() =>
     [
         BookCopy.Create("C-001", "978-966-03-1234-5"),

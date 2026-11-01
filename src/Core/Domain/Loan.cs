@@ -37,7 +37,7 @@ public sealed class Loan
     public void Close(DateOnly returnedOn)
     {
         if (IsClosed)
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Видача {Id} вже закрита {ReturnedOn:yyyy-MM-dd}, закрити повторно не можна");
         if (returnedOn < IssuedOn)
             throw new ArgumentOutOfRangeException(nameof(returnedOn), returnedOn,
@@ -58,7 +58,7 @@ public sealed class Loan
     private void EnsureCanMoveTo(LoanStatus next)
     {
         if (!CanMove(Status, next))
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Видача {Id}: перехід зі стану {Status} у {next} неможливий");
     }
 
@@ -92,7 +92,7 @@ public sealed class Loan
             throw new ArgumentOutOfRangeException(nameof(dto), returned,
                 $"Дата повернення {returned:yyyy-MM-dd} раніше дати видачі {dto.IssuedOn:yyyy-MM-dd}");
         if (status != LoanStatus.Returned && !copy.IsIssued)
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Видача {dto.Id} не завершена, але примірник {copy.Id} позначений як вільний");
 
         return new Loan(dto.Id.Trim(), copy, dto.ReaderId.Trim(), dto.IssuedOn, dto.ReturnedOn, status);

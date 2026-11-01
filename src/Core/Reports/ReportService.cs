@@ -25,10 +25,11 @@ public static class ReportService
     // 3) групування видань за десятиліттям (методний синтаксис)
     public static IReadOnlyList<GroupSummary> BooksByDecade(IEnumerable<Book> source) =>
         source.GroupBy(b => b.Year / 10 * 10)
-              .OrderBy(g => g.Key)
+              .OrderBy(g => g.Key) 
               .Select(g => new GroupSummary($"{g.Key}-ті", g.Count()))
               .ToList();
 
+    
     // 4) агрегати з обробкою порожньої послідовності
     public static CopyStats CopyTotals(IEnumerable<BookCopy> source)
     {

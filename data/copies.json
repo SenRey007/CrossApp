@@ -1,0 +1,12 @@
+[
+  { "id": "IM-001", "isbn": "978-966-03-1234-5", "isIssued": false },
+  { "id": "IM-002", "isbn": "978-617-12-5678-9", "isIssued": false },
+  { "id": "IM-003", "isbn": "978-966-97-1111-2", "isIssued": false },
+  { "id": "IM-004", "isbn": "978-966-97-2222-3", "isIssued": false },
+  { "id": "IM-005", "isbn": "978-617-12-3333-4", "isIssued": false },
+  { "id": "IM-006", "isbn": "978-966-03-4444-5", "isIssued": false },
+  { "id": "IM-007", "isbn": "978-617-12-5555-6", "isIssued": false },
+  { "id": "IM-008", "isbn": "978-617-12-7777-8", "isIssued": false },
+  { "id": "IM-009", "isbn": "978-966-03-1212-3", "isIssued": false },
+  { "id": "IM-010", "isbn": "978-966-03-1616-7", "isIssued": false }
+]

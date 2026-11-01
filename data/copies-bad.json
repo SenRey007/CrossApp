@@ -1,0 +1,5 @@
+[
+  { "id": "BAD-001", "isbn": "978-966-03-1234-5", "isIssued": false },
+  { "id": "BAD-002", "isbn": "978-617-12-5678-9", "isIssued": false },
+  { "id": "BAD-003", "isbn": "", "isIssued": false }
+]

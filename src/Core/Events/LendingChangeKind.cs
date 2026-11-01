@@ -6,3 +6,4 @@ public enum LendingChangeKind
     CopyIssued,
     CopyReturned
 }
+

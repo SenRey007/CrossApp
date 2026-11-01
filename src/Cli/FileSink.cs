@@ -10,4 +10,4 @@ public sealed class FileSink(string path) : INotificationSink
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.AppendAllText(path, LendingMessages.Format(e) + Environment.NewLine);
     }
-}
+}   

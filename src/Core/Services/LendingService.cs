@@ -36,7 +36,7 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
     public Loan IssueCopy(string loanId, string copyId, string readerId, DateOnly issuedOn)
     {
         BookCopy copy = _store.GetById(copyId)
-            ?? throw new InvalidOperationException($"Немає примірника з id={copyId}.");
+            ?? throw new DomainException($"Немає примірника з id={copyId}.");
 
         if (string.IsNullOrWhiteSpace(readerId))
             throw new ArgumentException("Ідентифікатор читача обов'язковий", nameof(readerId));
@@ -44,7 +44,7 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
 
         int open = CountOpenLoans(reader);
         if (open >= MaxOpenLoansPerReader)
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Читач {reader} уже має {open} відкритих видач (максимум {MaxOpenLoansPerReader})");
 
         Loan loan = Loan.Open(loanId, copy, reader, issuedOn); // copy.Issue() всередині
@@ -58,7 +58,7 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
     public void ReturnCopy(string loanId, DateOnly returnedOn)
     {
         Loan loan = _loans.FirstOrDefault(l => l.Id == loanId)
-            ?? throw new InvalidOperationException($"Немає видачі з id={loanId}.");
+            ?? throw new DomainException($"Немає видачі з id={loanId}.");
 
         loan.Close(returnedOn); // copy.Return() всередині
 
@@ -76,4 +76,28 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
         _store.Find(predicate);
 
     private readonly INotificationSink? _sink = sink;
+
+
+
+    public async Task<int> ImportAsync(ICopyImporter importer, string path, CancellationToken ct = default)
+{
+    ArgumentNullException.ThrowIfNull(importer);
+    ct.ThrowIfCancellationRequested();
+
+    IReadOnlyList<BookCopy> items = await importer.LoadAsync(path, ct);
+
+    int added = 0;
+    foreach (BookCopy item in items)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (_store.GetById(item.Id) is not null)
+            continue; // ідемпотентність: повторний імпорт нічого не дублює
+
+        _store.Add(item);
+        OnChanged(item.Id, LendingChangeKind.BookAdded); // подія з лаби 6 для кожного доданого
+        added++;
+    }
+
+    return added;
+}
 }
