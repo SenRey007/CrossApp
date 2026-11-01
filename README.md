@@ -104,6 +104,14 @@ TopBy<T>(key, n, thenBy) — власний метод-розширення, в�
 Поганий файл: `--import data/copies-bad.json` -> «Дані відхилено: Запис 3: ...».
 Помилки: DomainException — бізнес-правила; ArgumentException — поганий аргумент; IOException/JsonException — технічні, не маскуються.
 
+## Додаткове завдання (lab08)
+
+ICopyStreamImporter / JsonCopyStreamImporter: потоковий імпорт через IAsyncEnumerable з [EnumeratorCancellation]; LendingService.ImportStreamAsync додає записи по мірі надходження (не атомарно).
+ImportWithTimeoutAsync: CreateLinkedTokenSource(userToken, timeoutToken); таймаут -> TimeoutException, скасування користувачем -> OperationCanceledException (тести це розрізняють).
+ImportAsync(..., IProgress<int> progress): відсотки; у Cli власна синхронна реалізація (Progress<T> у консолі викликає обробник у пулі потоків).
+Покриття: dotnet test --collect:"XPlat Code Coverage" (звіт у tests/Core.Tests/TestResults, не комітиться).
+Запуск демо: dotnet run --project src/Cli -- --async-extra
+
 ## Команди
  
 Build:

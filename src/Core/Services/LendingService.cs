@@ -79,7 +79,8 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
 
 
 
-    public async Task<int> ImportAsync(ICopyImporter importer, string path, CancellationToken ct = default)
+public async Task<int> ImportAsync(ICopyImporter importer, string path,
+    CancellationToken ct = default, IProgress<int>? progress = null)
 {
     ArgumentNullException.ThrowIfNull(importer);
     ct.ThrowIfCancellationRequested();
@@ -87,17 +88,59 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
     IReadOnlyList<BookCopy> items = await importer.LoadAsync(path, ct);
 
     int added = 0;
+    int processed = 0;
     foreach (BookCopy item in items)
     {
         ct.ThrowIfCancellationRequested();
+        processed++;
+
+        if (_store.GetById(item.Id) is null) // ідемпотентність
+        {
+            _store.Add(item);
+            OnChanged(item.Id, LendingChangeKind.BookAdded);
+            added++;
+        }
+
+        progress?.Report((int)(100L * processed / items.Count)); // відсотки
+    }
+
+    return added;
+}
+public async Task<int> ImportStreamAsync(ICopyStreamImporter importer, string path,
+    CancellationToken ct = default)
+{
+    ArgumentNullException.ThrowIfNull(importer);
+    ct.ThrowIfCancellationRequested();
+
+    int added = 0;
+    await foreach (BookCopy item in importer.StreamAsync(path).WithCancellation(ct))
+    {
+        ct.ThrowIfCancellationRequested(); // сервіс сам перевіряє токен між записами
         if (_store.GetById(item.Id) is not null)
-            continue; // ідемпотентність: повторний імпорт нічого не дублює
+            continue;
 
         _store.Add(item);
-        OnChanged(item.Id, LendingChangeKind.BookAdded); // подія з лаби 6 для кожного доданого
+        OnChanged(item.Id, LendingChangeKind.BookAdded);
         added++;
     }
 
     return added;
+}
+public async Task<int> ImportWithTimeoutAsync(ICopyImporter importer, string path,
+    TimeSpan timeout, CancellationToken userToken = default)
+{
+    using var timeoutCts = new CancellationTokenSource(timeout);
+    using var linked = CancellationTokenSource.CreateLinkedTokenSource(userToken, timeoutCts.Token);
+
+    try
+    {
+        return await ImportAsync(importer, path, linked.Token);
+    }
+    catch (OperationCanceledException ex)
+        when (timeoutCts.IsCancellationRequested && !userToken.IsCancellationRequested)
+    {
+        // Скасував саме таймаут, а не користувач.
+        throw new TimeoutException($"Імпорт перевищив ліміт {timeout.TotalMilliseconds:F0} мс.", ex);
+    }
 }
 }

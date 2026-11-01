@@ -43,6 +43,12 @@ if (args.Contains("--storage-extra"))
     return 0;
 }
 
+if (args.Contains("--async-extra"))
+{
+    await AsyncExtraDemo.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--import"))
     return await AsyncDemo.RunAsync(args);
 
