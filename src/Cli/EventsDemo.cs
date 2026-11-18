@@ -14,8 +14,9 @@ public static class EventsDemo
         Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
         File.WriteAllText(logPath, string.Empty); // чистий лог для кожного показу
 
-        IBookCopyStore store = StoreFactory.Create(args);
-        var service = new LendingService(store);
+AppSettings settings = AppConfig.Load(args);
+IBookCopyStore store = StoreFactory.Create(args, settings.DataFile);
+var service = new LendingService(store, loanDays: settings.Library.LoanDays);
         Console.WriteLine($"Сховище: {store.GetType().Name}");
 
         // Підписник 1: локальний метод (його можна відписати через -=)

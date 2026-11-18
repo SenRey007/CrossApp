@@ -112,6 +112,28 @@ ImportAsync(..., IProgress<int> progress): відсотки; у Cli власна
 Покриття: dotnet test --collect:"XPlat Code Coverage" (звіт у tests/Core.Tests/TestResults, не комітиться).
 Запуск демо: dotnet run --project src/Cli -- --async-extra
 
+## Конфігурація (lab09)
+
+Джерела (кожне наступне перекриває попереднє): appsettings.json -> appsettings.{Профіль}.json -> user-secrets -> змінні CROSSAPP_… -> CROSSAPP_DATA_PATH -> аргументи (--Ключ=значення).
+Профіль обирає CROSSAPP_ENVIRONMENT (за замовчуванням Development).
+
+| Ключ | Змінна середовища | За замовчуванням | Призначення |
+|---|---|---|---|
+| Storage:DataPath | CROSSAPP_Storage__DataPath (або проста CROSSAPP_DATA_PATH) | data | каталог даних: відносний рахується від каталогу застосунку, абсолютний береться як є |
+| Storage:FileName | CROSSAPP_Storage__FileName | catalog.json | файл сховища примірників |
+| Storage:BooksFileName | CROSSAPP_Storage__BooksFileName | books.json | файл експорту видань |
+| Library:LoanDays | CROSSAPP_Library__LoanDays | 14 | строк видачі в днях |
+| Logging:MinimumLevel | CROSSAPP_Logging__MinimumLevel | Information (Development: Debug, Production: Warning) | докладність логу |
+| Integration:ApiKey | CROSSAPP_Integration__ApiKey | не задано | навчальний секрет (user-secrets або змінна, НЕ в appsettings) |
+
+Профілі: Development (Debug, data), Production (Warning, data-prod).
+
+PowerShell:  $env:CROSSAPP_DATA_PATH = "C:\Users\me\data"; dotnet run --project src/Cli -- --config
+bash:        CROSSAPP_DATA_PATH=/tmp/data dotnet run --project src/Cli -- --config
+Вкладений ключ: $env:CROSSAPP_Library__LoanDays = "7"   /   CROSSAPP_Library__LoanDays=7 dotnet run ...
+Секрет: dotnet user-secrets set "Integration:ApiKey" "<ваш-ключ>" --project src/Cli
+Команди: --config (показати налаштування), --export (записати видання й примірники в JSON), --load (прочитати назад).
+
 ## Команди
  
 Build:

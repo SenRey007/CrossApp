@@ -13,6 +13,9 @@ if (args.Contains("--domain"))
     return 0;
 }
 
+if (args.Contains("--config") || args.Contains("--export") || args.Contains("--load"))
+    return ConfigDemo.Run(args);
+
 if (args.Contains("--extra"))
 {
     ExtraDemo.Run();
@@ -31,11 +34,7 @@ if (args.Contains("--events"))
     return 0;
 }
 
-if (args.Contains("--lending"))
-{
-    LendingDemo.Run(useFile: args.Contains("--file"));
-    return 0;
-}
+LendingDemo.Run(args.Contains("--file"), AppConfig.Load(args));
 
 if (args.Contains("--storage-extra"))
 {

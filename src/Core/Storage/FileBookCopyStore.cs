@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Core.Abstractions;
 using Core.Domain;
 using Core.Dto;
@@ -7,7 +6,6 @@ namespace Core.Storage;
 
 public sealed class FileBookCopyStore(string path) : IBookCopyStore
 {
-    private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
     private readonly Dictionary<string, BookCopy> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly string _path = Path.GetFullPath(path);
     private bool _loaded;
@@ -15,24 +13,15 @@ public sealed class FileBookCopyStore(string path) : IBookCopyStore
     private void EnsureLoaded()
     {
         if (_loaded) return;
-        if (File.Exists(_path))
-        {
-            var dtos = JsonSerializer.Deserialize<List<BookCopyDto>>(File.ReadAllText(_path)) ?? [];
-            foreach (var dto in dtos)
-            {
-                var copy = BookCopy.FromDto(dto); // ті самі перевірки, що й у Create
-                _cache[copy.Id] = copy;
-            }
-        }
+
+        _cache.Clear();
+        foreach (BookCopy copy in JsonFile.Load<BookCopyDto, BookCopy>(_path, BookCopy.FromDto)) // FromDto перевіряє інваріанти
+            _cache[copy.Id] = copy;
+
         _loaded = true;
     }
 
-    private void Flush()
-    {
-        Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-        File.WriteAllText(_path,
-            JsonSerializer.Serialize(_cache.Values.Select(c => c.ToDto()).ToList(), Options));
-    }
+    private void Flush() => JsonFile.Save(_path, _cache.Values.Select(c => c.ToDto()));
 
     public IReadOnlyList<BookCopy> List()
     {
@@ -52,6 +41,7 @@ public sealed class FileBookCopyStore(string path) : IBookCopyStore
         EnsureLoaded();
         if (_cache.ContainsKey(item.Id))
             throw new DomainException($"Примірник з id={item.Id} уже існує.");
+
         _cache.Add(item.Id, item);
         Flush();
     }

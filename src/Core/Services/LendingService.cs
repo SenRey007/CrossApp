@@ -4,7 +4,7 @@ using Core.Events;
 
 namespace Core.Services;
 
-public sealed class LendingService(IBookCopyStore store, INotificationSink? sink = null)
+public sealed class LendingService(IBookCopyStore store, INotificationSink? sink = null, int? loanDays = null)
 {
     public const int MaxOpenLoansPerReader = 5;
     public const int LoanPeriodDays = 14;
@@ -14,13 +14,14 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
 
     public event EventHandler<LendingChangedEventArgs>? Changed;
 
+    // Єдине місце, де піднімається подія.
     private void OnChanged(string copyId, LendingChangeKind kind,
     string? readerId = null, DateOnly? dueDate = null)
-	{
-    		var args = new LendingChangedEventArgs(copyId, kind, readerId, dueDate);
-    		Changed?.Invoke(this, args);
-    		_sink?.Notify(args);
-	}
+{
+    var args = new LendingChangedEventArgs(copyId, kind, readerId, dueDate);
+    Changed?.Invoke(this, args);
+    _sink?.Notify(args);
+}
 
     public BookCopy AddBook(string isbn)
     {
@@ -51,7 +52,7 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
         _store.Update(copy);
         _loans.Add(loan);
 
-        OnChanged(copy.Id, LendingChangeKind.CopyIssued, reader, issuedOn.AddDays(LoanPeriodDays));
+        OnChanged(copy.Id, LendingChangeKind.CopyIssued, reader, issuedOn.AddDays(_loanDays));
         return loan;
     }
 
@@ -75,11 +76,18 @@ public sealed class LendingService(IBookCopyStore store, INotificationSink? sink
     public IReadOnlyList<BookCopy> FindAll(Func<BookCopy, bool> predicate) =>
         _store.Find(predicate);
 
-    private readonly INotificationSink? _sink = sink;
+	private readonly INotificationSink? _sink = sink;
 
+private readonly int _loanDays = loanDays switch
+{
+    null => LoanPeriodDays,
+    > 0 => loanDays.Value,
+    _ => throw new ArgumentOutOfRangeException(
+        nameof(loanDays), loanDays,
+        "Строк видачі має бути більшим за нуль")
+};
 
-
-public async Task<int> ImportAsync(ICopyImporter importer, string path,
+   public async Task<int> ImportAsync(ICopyImporter importer, string path,
     CancellationToken ct = default, IProgress<int>? progress = null)
 {
     ArgumentNullException.ThrowIfNull(importer);
