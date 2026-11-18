@@ -134,6 +134,13 @@ bash:        CROSSAPP_DATA_PATH=/tmp/data dotnet run --project src/Cli -- --conf
 Секрет: dotnet user-secrets set "Integration:ApiKey" "<ваш-ключ>" --project src/Cli
 Команди: --config (показати налаштування), --export (записати видання й примірники в JSON), --load (прочитати назад).
 
+## Додаткове завдання (lab09)
+
+Валідація на старті: некоректні налаштування (порожній Storage:DataPath, Storage:FileName без .json, невідомий Storage:Format, Library:LoanDays <= 0, невідомий Logging:MinimumLevel, нечитабельна конфігурація) дають список помилок і код завершення 2 без винятку.
+Аргументи: --data-path=<шлях> (= Storage:DataPath), --format=<json|csv> (= Storage:Format), будь-який ключ у вигляді --Розділ:Ключ=значення. Приймається лише форма --Ключ=значення; аргумент має найвищий пріоритет.
+Формат видань: Storage:Format = json | csv (IBookCatalogFormat: JsonBookCatalogFormat, CsvBookCatalogFormat). Для csv Storage:BooksFileName має закінчуватися на .csv; CSV: роздільник «;», UTF-8, рядок заголовків, поля з «;» беруться в лапки.
+Тести файлового сховища використовують Path.GetTempPath() і прибирають каталог у Dispose.
+
 ## Команди
  
 Build:

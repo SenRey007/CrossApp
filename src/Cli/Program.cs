@@ -7,6 +7,15 @@ using Core.Import;
 //   .csv  -> BookCsvImporter, .json -> BookJsonImporter
 //   --mixed  -> файл із префіксами типів (B;... книги, R;... читачі)
 //   --domain -> демонстрація доменної моделі (лаба 4)
+// Перевірка налаштувань на старті: некоректна конфігурація дає зрозуміле повідомлення і код 2, без винятку.
+if (!AppConfig.TryLoad(args, out IReadOnlyList<string> configErrors))
+{
+    Console.WriteLine("Налаштування некоректні:");
+    foreach (string error in configErrors)
+        Console.WriteLine($" ! {error}");
+    return 2;
+}
+
 if (args.Contains("--domain"))
 {
     DomainDemo.Run();
@@ -34,7 +43,11 @@ if (args.Contains("--events"))
     return 0;
 }
 
-LendingDemo.Run(args.Contains("--file"), AppConfig.Load(args));
+if (args.Contains("--lending"))
+{
+    LendingDemo.Run(args.Contains("--file"), AppConfig.Load(args));
+    return 0;
+}
 
 if (args.Contains("--storage-extra"))
 {

@@ -10,6 +10,7 @@ public sealed class AppOptions
 
 public sealed class StorageOptions
 {
+    public string Format { get; init; } = "json";
     public string DataPath { get; init; } = "data";
     public string FileName { get; init; } = "catalog.json";
     public string BooksFileName { get; init; } = "books.json";

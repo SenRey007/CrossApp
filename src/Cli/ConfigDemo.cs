@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Core;
+using Core.Abstractions;
 using Core.Domain;
 using Core.Dto;
 using Core.Storage;
@@ -22,8 +23,8 @@ public static class ConfigDemo
         Row("Рівень логу", s.Logging.MinimumLevel);
         Row("Файл даних", s.DataFile);
         Row("Файл видань", s.BooksFile);
+        Row("Формат видань", s.Storage.Format);
         Row("Строк видачі", $"{s.Library.LoanDays} дн.");
-        // Секрет: лише факт наявності й довжина, ніколи саме значення.
         Row("ApiKey", s.ApiKey is null ? "не заданий" : $"присутній, довжина {s.ApiKey.Length}");
 
         try
@@ -52,18 +53,19 @@ public static class ConfigDemo
         }
     }
 
-    private static void Row(string label, string value) => Console.WriteLine($"{label,-13}: {value}");
+    private static void Row(string label, string value) => Console.WriteLine($"{label,-14}: {value}");
 
     private static void Export(AppSettings s, Action<string> log)
     {
+        IBookCatalogFormat format = BookCatalogFormats.Create(s.Storage.Format);
         IReadOnlyList<Book> books = SampleData.Books();
         IReadOnlyList<BookCopy> copies = SampleData.Copies().ToList();
 
         log($"Записую {books.Count} видань у тимчасовий файл {s.BooksFile}.tmp, потім підміна");
-        JsonFile.Save(s.BooksFile, books.Select(b => b.ToDto()));
+        format.Save(s.BooksFile, books);
         JsonFile.Save(s.DataFile, copies.Select(c => c.ToDto()));
 
-        Console.WriteLine($"Експортовано видань: {books.Count} -> {Path.GetFileName(s.BooksFile)}");
+        Console.WriteLine($"Експортовано видань: {books.Count} -> {Path.GetFileName(s.BooksFile)} (формат {s.Storage.Format})");
         Console.WriteLine($"Експортовано примірників: {copies.Count} -> {Path.GetFileName(s.DataFile)}");
     }
 
@@ -75,7 +77,8 @@ public static class ConfigDemo
             return;
         }
 
-        IReadOnlyList<Book> books = JsonFile.Load<BookDto, Book>(s.BooksFile, Book.FromDto);
+        IBookCatalogFormat format = BookCatalogFormats.Create(s.Storage.Format);
+        IReadOnlyList<Book> books = format.Load(s.BooksFile);
         IReadOnlyList<BookCopy> copies = JsonFile.Load<BookCopyDto, BookCopy>(s.DataFile, BookCopy.FromDto);
 
         Console.WriteLine($"Завантажено видань: {books.Count}, примірників: {copies.Count}");
