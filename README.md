@@ -141,6 +141,23 @@ bash:        CROSSAPP_DATA_PATH=/tmp/data dotnet run --project src/Cli -- --conf
 Формат видань: Storage:Format = json | csv (IBookCatalogFormat: JsonBookCatalogFormat, CsvBookCatalogFormat). Для csv Storage:BooksFileName має закінчуватися на .csv; CSV: роздільник «;», UTF-8, рядок заголовків, поля з «;» беруться в лапки.
 Тести файлового сховища використовують Path.GetTempPath() і прибирають каталог у Dispose.
 
+## HTTP API (lab10)
+
+Запуск: dotnet run --project src/Api   (порт 5080 з launchSettings.json; альтернатива: --urls http://localhost:5080)
+Scalar UI: http://localhost:5080/scalar/v1, документ OpenAPI: http://localhost:5080/openapi/v1.json (лише Development).
+
+| Метод | Шлях | Тіло | Коди |
+|---|---|---|---|
+| GET | /api/books[?author=] | — | 200 |
+| GET | /api/books/{id} | — | 200, 404 |
+| POST | /api/books | SaveBookRequest | 201 (Location), 400 |
+| PUT | /api/books/{id} | SaveBookRequest | 200, 400, 404 |
+| DELETE | /api/books/{id} | — | 204, 404 |
+
+SaveBookRequest: { "isbn", "title", "author", "year" }. Відповідь BookResponse: { id, isbn, title, author, year, copies }.
+Приклад (PowerShell): $body | curl.exe -i -X POST http://localhost:5080/api/books -H "Content-Type: application/json" --data-binary "@-"
+Помилки валідації: 400 application/problem+json зі словником errors { Поле: [повідомлення] }.
+
 ## Команди
  
 Build:

@@ -1,0 +1,38 @@
+@host = http://localhost:5080
+
+### Список
+GET {{host}}/api/books
+
+### Фільтр за автором
+GET {{host}}/api/books?author=Франко
+
+### Створити (id зберігається у змінну bookId)
+POST {{host}}/api/books
+Content-Type: application/json
+
+{ "isbn": "978-966-03-9999-1", "title": "Тестова книга", "author": "Іван Тест", "year": 2001 }
+
+> {%
+    client.global.set("bookId", response.body.id);
+%}
+
+### Прочитати за id
+GET {{host}}/api/books/{{bookId}}
+
+### Оновити
+PUT {{host}}/api/books/{{bookId}}
+Content-Type: application/json
+
+{ "isbn": "978-966-03-9999-1", "title": "Тестова книга (2-ге видання)", "author": "Іван Тест", "year": 2005 }
+
+### Оновити з порожньою назвою: очікую 400
+PUT {{host}}/api/books/{{bookId}}
+Content-Type: application/json
+
+{ "isbn": "978-966-03-9999-1", "title": "", "author": "Іван Тест", "year": 2005 }
+
+### Видалити
+DELETE {{host}}/api/books/{{bookId}}
+
+### Після видалення: очікую 404
+GET {{host}}/api/books/{{bookId}}
