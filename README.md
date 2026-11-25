@@ -158,6 +158,15 @@ SaveBookRequest: { "isbn", "title", "author", "year" }. Відповідь BookR
 Приклад (PowerShell): $body | curl.exe -i -X POST http://localhost:5080/api/books -H "Content-Type: application/json" --data-binary "@-"
 Помилки валідації: 400 application/problem+json зі словником errors { Поле: [повідомлення] }.
 
+## Додаткове завдання (lab10)
+| GET | /api/books?author=&search=&page=&pageSize= | — | 200 ({ items, total, page, pageSize }), 400 |
+| POST | /api/books | SaveBookRequest | 201 (Location), 400, 409 (дубль ISBN) |
+| PUT | /api/books/{id} | SaveBookRequest | 200, 400, 404, 409 |
+
+Пагінація: page >= 1 (за замовчуванням 1), pageSize 1..100 (за замовчуванням 20); порядок: назва без урахування регістру, потім id.
+Валідація: FluentValidation + ValidationFilter (AddEndpointFilter); DomainException -> 409 через DomainExceptionHandler.
+Інтеграційні тести: dotnet test (tests/Api.Tests, WebApplicationFactory<Program>).
+
 ## Команди
  
 Build:

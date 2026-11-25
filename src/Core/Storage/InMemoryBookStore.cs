@@ -5,7 +5,7 @@ namespace Core.Storage;
 
 public sealed class InMemoryBookStore(IEnumerable<Book>? seed = null) : IBookStore
 {
-    // Сховище живе як Singleton, а запити HTTP йдуть паралельно: Dictionary не потокобезпечний, тож усе під lock.
+    // Singleton + паралельні HTTP-запити: усе під lock.
     private readonly object _sync = new();
     private readonly Dictionary<string, Book> _items =
         (seed ?? []).ToDictionary(b => b.Id, StringComparer.OrdinalIgnoreCase);
@@ -33,6 +33,7 @@ public sealed class InMemoryBookStore(IEnumerable<Book>? seed = null) : IBookSto
         {
             if (_items.ContainsKey(item.Id))
                 throw new DomainException($"Книга з id={item.Id} уже існує.");
+            EnsureIsbnIsFree(item);
             _items.Add(item.Id, item);
         }
     }
@@ -42,6 +43,7 @@ public sealed class InMemoryBookStore(IEnumerable<Book>? seed = null) : IBookSto
         ArgumentNullException.ThrowIfNull(item);
         lock (_sync)
         {
+            EnsureIsbnIsFree(item);
             _items[item.Id] = item;
         }
     }
@@ -53,4 +55,17 @@ public sealed class InMemoryBookStore(IEnumerable<Book>? seed = null) : IBookSto
             return _items.Remove(id);
         }
     }
+
+    // Викликати лише всередині lock. ISBN порівнюємо за цифрами, тому з дефісами і без вони однакові.
+    private void EnsureIsbnIsFree(Book item)
+    {
+        string isbn = Digits(item.Isbn);
+        bool taken = _items.Values.Any(b =>
+            !string.Equals(b.Id, item.Id, StringComparison.OrdinalIgnoreCase) && Digits(b.Isbn) == isbn);
+
+        if (taken)
+            throw new DomainException($"Видання з ISBN {item.Isbn} уже існує.");
+    }
+
+    private static string Digits(string isbn) => new(isbn.Where(char.IsDigit).ToArray());
 }

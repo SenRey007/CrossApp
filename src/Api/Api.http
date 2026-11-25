@@ -36,3 +36,19 @@ DELETE {{host}}/api/books/{{bookId}}
 
 ### Після видалення: очікую 404
 GET {{host}}/api/books/{{bookId}}
+
+
+### Сторінка 2 по 5
+GET {{host}}/api/books?page=2&pageSize=5
+
+### Пошук за назвою, автором чи ISBN
+GET {{host}}/api/books?search=коцюб
+
+### Поганий pageSize: очікую 400
+GET {{host}}/api/books?pageSize=0
+
+### Дубль ISBN: очікую 409
+POST {{host}}/api/books
+Content-Type: application/json
+
+{ "isbn": "978-966-03-1234-5", "title": "Дубль", "author": "Хтось", "year": 2000 }
